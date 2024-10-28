@@ -8,9 +8,13 @@ import (
 
 const configFilename = ".gatorconfig.json"
 
+type State struct {
+	Config 		*Config 	
+}
+
 type Config struct {
-	dbURL				string
-	currentUsername		string
+	DBURL				string
+	CurrentUsername		string
 }
 
 func Read() (Config, error) {
@@ -22,6 +26,8 @@ func Read() (Config, error) {
 	if err != nil {
 		return Config{}, err
 	}
+	defer jsonFile.Close()
+
 	dat, err := io.ReadAll(jsonFile)
 	if err != nil {
 		return Config{}, err
@@ -35,7 +41,7 @@ func Read() (Config, error) {
 }
 
 func (cfg *Config)SetUser(username string) error {
-	cfg.currentUsername = username
+	cfg.CurrentUsername = username
 	err := cfg.write()
 	if err != nil {
 		return err
@@ -44,7 +50,7 @@ func (cfg *Config)SetUser(username string) error {
 }
 
 func (cfg *Config)write() error {
-	dat, err := json.Marshal(cfg)
+	dat, err := json.Marshal(&cfg)
 	if err != nil {
 		return err
 	}
