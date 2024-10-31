@@ -2,26 +2,33 @@ package main
 
 import (
 	"fmt"
+	"github.com/hf-chow/gator/internal/command"
 	"github.com/hf-chow/gator/internal/config"
-	"encoding/json"
+	"os"
 )
 
 func main() {
 	cfg, err := config.Read()
 	if err != nil {
 		fmt.Printf("%s", err)
+		os.Exit(1)
 	}
+	state := &command.State{Config: &cfg}
+	cmds := &command.Commands{}
+	cmds.Register("login", command.HandlerLogin)
 
-	username := "hon"
-	err = cfg.SetUser(username)
-	if err != nil {
-		fmt.Printf("%s", err)
+	args := os.Args
+	if len(args) < 3 {
+		fmt.Println("Invalid input")
+		os.Exit(1)
 	}
-
-	newCfg, err := config.Read()
+	commandName := args[1]
+	commandArg := args[2]
+	cmd := command.Command{Name: commandName, Args:[]string{commandArg}}
+	err = cmds.Run(state, cmd)
 	if err != nil {
-		fmt.Printf("%s", err)
+		fmt.Printf("Error %s\n", err)
+		os.Exit(1)
 	}
-	b, _ := json.Marshal(&newCfg)
-	fmt.Printf("%s", string(b))
+	os.Exit(0)
 }

@@ -6,42 +6,42 @@ import (
 	"github.com/hf-chow/gator/internal/config"
 )
 
-type command struct {
-	name		string
-	args 		[]string
+type Command struct {
+	Name		string
+	Args 		[]string
 }
 
-type commands struct {
-	names		map[string]func(*state, command) error
+type Commands struct {
+	Names		map[string]func(*State, Command) error
 }
 
-type state struct {
+type State struct {
 	Config 		*config.Config
 }
 
-func handlerLogin(s *state, cmd command) error {
-	if len(cmd.args) == 0 {
+func HandlerLogin(s *State, cmd Command) error {
+	if len(cmd.Args) == 0 {
 		return errors.New("please provide the username")
 	}
-	err := s.Config.SetUser(cmd.args[1])
+	err := s.Config.SetUser(cmd.Args[0])
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Username %s has been set\n", cmd.args[1])
+	fmt.Printf("Username %s has been set\n", cmd.Args[0])
  
 	return nil
 }
 
-func (c *commands) register(name string, f func(*state, command) error) {
-	if c.names == nil {
-		c.names = make(map[string]func(*state, command) error)
+func (c *Commands) Register(name string, f func(*State, Command) error) {
+	if c.Names == nil {
+		c.Names = make(map[string]func(*State, Command) error)
 	}
-	c.names[name] = f
+	c.Names[name] = f
 }
 
-func (c *commands) run(s *state, cmd command) error {
-	if f, ok := c.names[cmd.name]; ok {
+func (c *Commands) Run(s *State, cmd Command) error {
+	if f, ok := c.Names[cmd.Name]; ok {
 		return f(s, cmd)
 	}
-	return errors.New("command not found")
+	return errors.New("Command not found")
 }
