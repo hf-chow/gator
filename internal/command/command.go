@@ -3,7 +3,9 @@ package command
 import (
 	"errors"
 	"fmt"
+
 	"github.com/hf-chow/gator/internal/config"
+	"github.com/hf-chow/gator/internal/database"
 )
 
 type Command struct {
@@ -16,6 +18,7 @@ type Commands struct {
 }
 
 type State struct {
+	DB			*database.Queries
 	Config 		*config.Config
 }
 

@@ -1,10 +1,14 @@
 package main
 
+import _ "github.com/lib/pq"
+
 import (
 	"fmt"
 	"github.com/hf-chow/gator/internal/command"
 	"github.com/hf-chow/gator/internal/config"
+	"github.com/hf-chow/gator/internal/database"
 	"os"
+	"database/sql"
 )
 
 func main() {
@@ -14,6 +18,11 @@ func main() {
 		os.Exit(1)
 	}
 	state := &command.State{Config: &cfg}
+
+	db, err := sql.Open("postgres", cfg.DBURL)
+	dbQueries := database.New(db)
+	state.DB = dbQueries
+
 	cmds := &command.Commands{}
 	cmds.Register("login", command.HandlerLogin)
 
