@@ -25,6 +25,8 @@ func main() {
 
 	cmds := &command.Commands{}
 	cmds.Register("login", command.HandlerLogin)
+	cmds.Register("register", command.HandlerRegister)
+	cmds.Register("reset", command.HandlerRegister)
 
 	args := os.Args
 	if len(args) < 3 {
