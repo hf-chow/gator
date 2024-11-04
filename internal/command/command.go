@@ -44,16 +44,6 @@ func HandlerLogin(s *State, cmd Command) error {
 	}
 }
 
-func usernameExists(s *State, username string) bool {
-	user, err := s.DB.GetUser(context.Background(), username)
-	if err != nil {
-		fmt.Printf("Unable to find user %s in DB\n", username)
-		return false
-	}
-	fmt.Printf("User %s exists", user)
-	return true
-}
-
 func HandlerRegister(s *State, cmd Command) error {
 	if len(cmd.Args) < 1 {
 		return errors.New("Please provide a username")
@@ -77,6 +67,26 @@ func HandlerRegister(s *State, cmd Command) error {
 	return nil
 }
 
+func HandlerReset(s *State, cmd Command) error {
+	err := s.DB.DeleteUsers(context.Background())
+	if err != nil {
+		fmt.Printf("Table delete unsuccessful: %s", err)
+		return err
+	}
+	fmt.Println("Table delete successful")
+	return err
+}
+
+func usernameExists(s *State, username string) bool {
+	user, err := s.DB.GetUser(context.Background(), username)
+	if err != nil {
+		fmt.Printf("Unable to find user %s in DB\n", username)
+		return false
+	}
+	fmt.Printf("User %s exists", user)
+	return true
+}
+
 func (c *Commands) Register(name string, f func(*State, Command) error) {
 	if c.Names == nil {
 		c.Names = make(map[string]func(*State, Command) error)
@@ -90,3 +100,4 @@ func (c *Commands) Run(s *State, cmd Command) error {
 	}
 	return errors.New("Command not found")
 }
+

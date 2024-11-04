@@ -26,9 +26,20 @@ func main() {
 	cmds := &command.Commands{}
 	cmds.Register("login", command.HandlerLogin)
 	cmds.Register("register", command.HandlerRegister)
-	cmds.Register("reset", command.HandlerRegister)
+	cmds.Register("reset", command.HandlerReset)
 
 	args := os.Args
+	if args[1] == "reset" {
+		commandName := args[1]
+		commandArg := ""
+		cmd := command.Command{Name: commandName, Args: []string{commandArg}}
+		err := cmds.Run(state, cmd)
+		if err != nil {
+			fmt.Printf("Error %s\n", err)
+			os.Exit(1)
+		}
+		os.Exit(0)
+	}
 	if len(args) < 3 {
 		fmt.Println("Invalid input")
 		os.Exit(1)

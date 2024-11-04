@@ -11,5 +11,5 @@ RETURNING *;
 -- name: GetUser :one
 SELECT * FROM users WHERE name = $1 LIMIT 1;
 
--- name: DeleteTable :exec
-DROP TABLE users;
+-- name: DeleteUsers :exec
+DELETE FROM users;
