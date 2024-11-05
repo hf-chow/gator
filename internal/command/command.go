@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/hf-chow/gator/internal/config"
 	"github.com/hf-chow/gator/internal/database"
+	"github.com/hf-chow/gator/internal/parser"
 )
 
 type Command struct {
@@ -24,6 +25,20 @@ type Commands struct {
 type State struct {
 	DB			*database.Queries
 	Config 		*config.Config
+}
+
+func HandlerAggregate(s * State, cmd Command) error {
+//	if len(cmd.Args) < 1 {
+//		return errors.New("Please provide a url")
+//	}
+//	url := cmd.Args[0]
+	url := "https://www.wagslane.dev/index.xml"
+	feed, err := parser.FetchFeed(context.Background(), url)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("%s", feed)
+	return nil
 }
 
 func HandlerLogin(s *State, cmd Command) error {
@@ -43,6 +58,7 @@ func HandlerLogin(s *State, cmd Command) error {
 		return nil
 	}
 }
+
 
 func HandlerRegister(s *State, cmd Command) error {
 	if len(cmd.Args) < 1 {
@@ -75,6 +91,21 @@ func HandlerReset(s *State, cmd Command) error {
 	}
 	fmt.Println("Table delete successful")
 	return err
+}
+
+func HandlerUsers(s *State, cmd Command) error {
+	users, err := s.DB.GetUsers(context.Background())
+	if err != nil {
+		return err
+	}
+	for _, user := range users {
+		if user.Name == s.Config.CurrentUsername {
+			fmt.Printf("* %s (current)\n", user.Name)
+		} else {
+			fmt.Printf("* %s\n", user.Name)
+		}
+	}
+	return nil
 }
 
 func usernameExists(s *State, username string) bool {
