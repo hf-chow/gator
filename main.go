@@ -24,12 +24,15 @@ func main() {
 	state.DB = dbQueries
 
 	cmds := &command.Commands{}
+	cmds.Register("addfeed", command.HandlerAddFeed)
+	cmds.Register("agg", command.HandlerAggregate)
 	cmds.Register("login", command.HandlerLogin)
 	cmds.Register("register", command.HandlerRegister)
 	cmds.Register("reset", command.HandlerReset)
+	cmds.Register("users", command.HandlerUsers)
 
 	args := os.Args
-	if args[1] == "reset" {
+	if (args[1] == "reset") || (args[1] == "users") || (args[1] == "agg") {
 		commandName := args[1]
 		commandArg := ""
 		cmd := command.Command{Name: commandName, Args: []string{commandArg}}
@@ -45,8 +48,8 @@ func main() {
 		os.Exit(1)
 	}
 	commandName := args[1]
-	commandArg := args[2]
-	cmd := command.Command{Name: commandName, Args:[]string{commandArg}}
+	commandArg := args[2:]
+	cmd := command.Command{Name: commandName, Args:commandArg}
 	err = cmds.Run(state, cmd)
 	if err != nil {
 		fmt.Printf("Error %s\n", err)

@@ -27,6 +27,42 @@ type State struct {
 	Config 		*config.Config
 }
 
+func HandlerAddFeed(s * State, cmd Command) error {
+	currUsername := s.Config.CurrentUsername
+	currUser, err := s.DB.GetUser(context.Background(), currUsername)
+	if err != nil {
+		return err
+	}
+	
+	if len(cmd.Args) < 1 {
+		return errors.New("Please provide a name of the feed and the url")
+	}
+	if len(cmd.Args) < 2 {
+		return errors.New("Please provide a url")
+	}
+
+	name := cmd.Args[0]
+	url := cmd.Args[1]
+
+	args := database.CreateFeedParams{
+		ID: uuid.New(), 
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		Name: name,
+		Url: url,
+		UserID: currUser.ID,
+	}
+
+	feed, err := s.DB.CreateFeed(context.Background(), args)
+	
+	if err != nil {
+		return err
+	}
+	fmt.Printf("%s", feed)
+	return nil
+}
+
+
 func HandlerAggregate(s * State, cmd Command) error {
 //	if len(cmd.Args) < 1 {
 //		return errors.New("Please provide a url")
