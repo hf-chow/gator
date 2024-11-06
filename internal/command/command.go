@@ -77,6 +77,15 @@ func HandlerAggregate(s * State, cmd Command) error {
 	return nil
 }
 
+func HandlerFeed(s *State, cmd Command) error {
+	feeds, err := s.DB.GetFeed(context.Background())
+	if err != nil {
+		return err
+	}
+	fmt.Printf("%v", feeds)
+	return nil
+}
+
 func HandlerLogin(s *State, cmd Command) error {
 	if len(cmd.Args) == 0 {
 		return errors.New("please provide the username")

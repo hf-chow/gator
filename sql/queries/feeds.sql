@@ -9,3 +9,8 @@ VALUES (
     $6
 )
 RETURNING *;
+
+-- name: GetFeed :many
+SELECT a.name, a.url, b.name AS username 
+FROM feeds a
+LEFT JOIN users b ON a.user_id = b.id;
