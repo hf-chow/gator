@@ -28,12 +28,6 @@ type State struct {
 }
 
 func HandlerAddFeed(s * State, cmd Command, user database.User) error {
-	currUsername := s.Config.CurrentUsername
-	currUser, err := s.DB.GetUser(context.Background(), currUsername)
-	if err != nil {
-		return err
-	}
-	
 	if len(cmd.Args) < 1 {
 		return errors.New("Please provide a name of the feed and the url")
 	}
@@ -50,7 +44,7 @@ func HandlerAddFeed(s * State, cmd Command, user database.User) error {
 		UpdatedAt: time.Now(),
 		Name: name,
 		Url: url,
-		UserID: currUser.ID,
+		UserID: user.ID,
 	}
 
 	feed, err := s.DB.CreateFeed(context.Background(), createArgs)
@@ -62,7 +56,7 @@ func HandlerAddFeed(s * State, cmd Command, user database.User) error {
 
 	followArgs := database.CreateFeedFollowParams{
 		ID: uuid.New(), CreatedAt: time.Now(),
-		UpdatedAt: time.Now(), UserID: currUser.ID,
+		UpdatedAt: time.Now(), UserID: user.ID,
 		FeedID: feed_id,
 	}
 	follow, err := s.DB.CreateFeedFollow(context.Background(), followArgs)
@@ -103,13 +97,9 @@ func HandlerFollow(s *State, cmd Command, user database.User) error {
 	if err != nil {
 		return err
 	}
-	user_id, err := s.DB.GetIDByUsername(context.Background(), s.Config.CurrentUsername)
-	if err != nil {
-		return err
-	}
 	args := database.CreateFeedFollowParams{
 		ID: uuid.New(), CreatedAt: time.Now(),
-		UpdatedAt: time.Now(), UserID: user_id,
+		UpdatedAt: time.Now(), UserID: user.ID,
 		FeedID: feed_id,
 	}
 	follow, err := s.DB.CreateFeedFollow(context.Background(), args)
@@ -120,11 +110,7 @@ func HandlerFollow(s *State, cmd Command, user database.User) error {
 }
 
 func HandlerFollowing(s *State, cmd Command, user database.User) error {
-	user_id, err := s.DB.GetIDByUsername(context.Background(), s.Config.CurrentUsername)
-	if err != nil {
-		return err
-	}
-	followings, err := s.DB.GetFeedFollowsForUser(context.Background(), user_id)
+	followings, err := s.DB.GetFeedFollowsForUser(context.Background(), user.ID)
 	if err != nil {
 		return err
 	}
@@ -203,6 +189,21 @@ func HandlerUsers(s *State, cmd Command) error {
 	return nil
 }
 
+func HandlerUnfollow(s * State, cmd Command, user database.User) error {
+	if len(cmd.Args) < 1 {
+		return errors.New("Please provide an url")
+	}
+	url := cmd.Args[0]
+	args := database.DeleteFeedFollowParams{
+		Url: url, UserID: user.ID,
+	}
+	unfollow, err := s.DB.DeleteFeedFollow(context.Background(), args)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("%s", unfollow)
+	return nil
+}
 func usernameExists(s *State, username string) bool {
 	user, err := s.DB.GetUser(context.Background(), username)
 	if err != nil {
