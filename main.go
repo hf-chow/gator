@@ -29,15 +29,15 @@ func main() {
 	state.DB = dbQueries
 
 	cmds := &command.Commands{}
-	cmds.Register("addfeed", command.HandlerAddFeed)
+	cmds.Register("addfeed", command.MiddlewareLoggedIn(command.HandlerAddFeed))
 	cmds.Register("agg", command.HandlerAggregate)
 	cmds.Register("feeds", command.HandlerFeed)
 	cmds.Register("login", command.HandlerLogin)
 	cmds.Register("register", command.HandlerRegister)
 	cmds.Register("reset", command.HandlerReset)
 	cmds.Register("users", command.HandlerUsers)
-	cmds.Register("follow", command.HandlerFollow)
-	cmds.Register("following", command.HandlerFollowing)
+	cmds.Register("follow", command.MiddlewareLoggedIn(command.HandlerFollow))
+	cmds.Register("following", command.MiddlewareLoggedIn(command.HandlerFollowing))
 
 	args := os.Args
 	if len(args) < 2 {

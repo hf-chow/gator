@@ -27,7 +27,7 @@ type State struct {
 	Config 		*config.Config
 }
 
-func HandlerAddFeed(s * State, cmd Command) error {
+func HandlerAddFeed(s * State, cmd Command, user database.User) error {
 	currUsername := s.Config.CurrentUsername
 	currUser, err := s.DB.GetUser(context.Background(), currUsername)
 	if err != nil {
@@ -94,7 +94,7 @@ func HandlerFeed(s *State, cmd Command) error {
 	return nil
 }
 
-func HandlerFollow(s *State, cmd Command) error {
+func HandlerFollow(s *State, cmd Command, user database.User) error {
 	if len(cmd.Args) < 1 {
 		return errors.New("Please provide an url")
 	}
@@ -119,7 +119,7 @@ func HandlerFollow(s *State, cmd Command) error {
 	return nil
 }
 
-func HandlerFollowing(s *State, cmd Command) error {
+func HandlerFollowing(s *State, cmd Command, user database.User) error {
 	user_id, err := s.DB.GetIDByUsername(context.Background(), s.Config.CurrentUsername)
 	if err != nil {
 		return err
