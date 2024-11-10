@@ -36,19 +36,10 @@ func main() {
 	cmds.Register("register", command.HandlerRegister)
 	cmds.Register("reset", command.HandlerReset)
 	cmds.Register("users", command.HandlerUsers)
+	cmds.Register("follow", command.HandlerFollow)
+	cmds.Register("following", command.HandlerFollowing)
 
 	args := os.Args
-//	if (args[1] == "reset") || (args[1] == "users") || (args[1] == "agg") || (args[1] == "feeds") {
-//		commandName := args[1]
-//		commandArg := ""
-//		cmd := command.Command{Name: commandName, Args: []string{commandArg}}
-//		err := cmds.Run(state, cmd)
-//		if err != nil {
-//			fmt.Printf("Error %s\n", err)
-//			os.Exit(1)
-//		}
-//		os.Exit(0)
-//	}
 	if len(args) < 2 {
 		fmt.Println("Invalid input")
 		os.Exit(1)

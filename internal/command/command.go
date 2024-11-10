@@ -44,7 +44,7 @@ func HandlerAddFeed(s * State, cmd Command) error {
 	name := cmd.Args[0]
 	url := cmd.Args[1]
 
-	args := database.CreateFeedParams{
+	createArgs := database.CreateFeedParams{
 		ID: uuid.New(), 
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
@@ -53,21 +53,29 @@ func HandlerAddFeed(s * State, cmd Command) error {
 		UserID: currUser.ID,
 	}
 
-	feed, err := s.DB.CreateFeed(context.Background(), args)
-	
+	feed, err := s.DB.CreateFeed(context.Background(), createArgs)
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%s", feed)
+
+	feed_id := createArgs.ID
+
+	followArgs := database.CreateFeedFollowParams{
+		ID: uuid.New(), CreatedAt: time.Now(),
+		UpdatedAt: time.Now(), UserID: currUser.ID,
+		FeedID: feed_id,
+	}
+	follow, err := s.DB.CreateFeedFollow(context.Background(), followArgs)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("%s\n", feed)
+	fmt.Printf("%s\n", follow)
 	return nil
 }
 
 
 func HandlerAggregate(s * State, cmd Command) error {
-//	if len(cmd.Args) < 1 {
-//		return errors.New("Please provide a url")
-//	}
-//	url := cmd.Args[0]
 	url := "https://www.wagslane.dev/index.xml"
 	feed, err := parser.FetchFeed(context.Background(), url)
 	if err != nil {
@@ -83,6 +91,48 @@ func HandlerFeed(s *State, cmd Command) error {
 		return err
 	}
 	fmt.Printf("%v", feeds)
+	return nil
+}
+
+func HandlerFollow(s *State, cmd Command) error {
+	if len(cmd.Args) < 1 {
+		return errors.New("Please provide an url")
+	}
+	url := cmd.Args[0]
+	feed_id, err := s.DB.GetFeedIDByUrl(context.Background(), url)
+	if err != nil {
+		return err
+	}
+	user_id, err := s.DB.GetIDByUsername(context.Background(), s.Config.CurrentUsername)
+	if err != nil {
+		return err
+	}
+	args := database.CreateFeedFollowParams{
+		ID: uuid.New(), CreatedAt: time.Now(),
+		UpdatedAt: time.Now(), UserID: user_id,
+		FeedID: feed_id,
+	}
+	follow, err := s.DB.CreateFeedFollow(context.Background(), args)
+
+	fmt.Printf("%s", follow)
+
+	return nil
+}
+
+func HandlerFollowing(s *State, cmd Command) error {
+	user_id, err := s.DB.GetIDByUsername(context.Background(), s.Config.CurrentUsername)
+	if err != nil {
+		return err
+	}
+	followings, err := s.DB.GetFeedFollowsForUser(context.Background(), user_id)
+	if err != nil {
+		return err
+	}
+
+	for _, following := range followings {
+		fmt.Printf("%v\n", following)
+	}
+
 	return nil
 }
 

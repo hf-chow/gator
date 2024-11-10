@@ -56,6 +56,17 @@ func (q *Queries) DeleteUsers(ctx context.Context) error {
 	return err
 }
 
+const getIDByUsername = `-- name: GetIDByUsername :one
+SELECT id FROM users WHERE name = $1 LIMIT 1
+`
+
+func (q *Queries) GetIDByUsername(ctx context.Context, name string) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, getIDByUsername, name)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
+}
+
 const getUser = `-- name: GetUser :one
 SELECT id, created_at, updated_at, name FROM users WHERE name = $1 LIMIT 1
 `

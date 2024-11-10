@@ -14,3 +14,8 @@ RETURNING *;
 SELECT a.name, a.url, b.name AS username 
 FROM feeds a
 LEFT JOIN users b ON a.user_id = b.id;
+
+-- name: GetFeedIDByUrl :one
+SELECT id 
+FROM feeds
+WHERE url = $1 LIMIT 1;
